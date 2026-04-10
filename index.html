@@ -2061,6 +2061,7 @@ function addToCart(pid,size,qty){
     renderCart();
     animateBadge();
     openCart();
+    if(window.adsTracker){var p=getProduct(pid);window.adsTracker.track("AddToCart",{value:p.price||0,content_name:p.name||"",content_ids:[pid]});}
 }
 
 function removeFromCart(idx){
@@ -2389,6 +2390,7 @@ document.addEventListener("click",function(e){
 
     // Cart checkout
     if(t.closest("#cartCheckout")){
+        if(window.adsTracker){var total=cart.reduce(function(s,c){var p=getProduct(c.id);return s+(p.price||0)*c.qty},0);var ids=cart.map(function(c){return c.id});window.adsTracker.track("InitiateCheckout",{value:total,content_ids:ids});}
         showToast("Redirection vers le paiement...");
         return;
     }
@@ -2556,6 +2558,18 @@ renderBundleSlots();
 renderCart();
 initFadeIn();
 
+})();
+</script>
+
+<!-- Ads Tracker -->
+<script>
+(function(){
+var T="https://ads-tracker-xi.vercel.app",K="trk_heuss_2026_secret";
+function gf(){var p=new URLSearchParams(window.location.search);var f=p.get("fbclid")||sessionStorage.getItem("fbclid")||null;if(f)sessionStorage.setItem("fbclid",f);return f;}
+gf();
+function tr(e,d){fetch(T+"/api/convert",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K},body:JSON.stringify({event_name:e,fbclid:gf(),ip:"",user_agent:navigator.userAgent,source_url:window.location.href,value:d&&d.value||null,currency:d&&d.currency||"EUR",content_name:d&&d.content_name||null,content_ids:d&&d.content_ids||null}),keepalive:true}).catch(function(){});}
+tr("PageView");
+window.adsTracker={track:tr};
 })();
 </script>
 </body>
