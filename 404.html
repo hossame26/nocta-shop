@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>NOCTA France</title>
+<script>
+// SPA routing pour GitHub Pages : on conserve l'URL actuelle et on redirige vers /
+// L'index.html lit window.location.pathname et affiche la bonne page
+var path = window.location.pathname + window.location.search + window.location.hash;
+sessionStorage.setItem("spa_redirect", path);
+window.location.replace("/");
+</script>
+</head>
+<body></body>
+</html>
