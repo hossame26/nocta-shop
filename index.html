@@ -587,6 +587,21 @@
     </script>
     <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=34851157957866178&ev=PageView&noscript=1"/></noscript>
     <!-- End Meta Pixel Code -->
+
+    <!-- Ads Tracker Dashboard (log only, ne renvoie pas a Meta) -->
+    <script>
+    (function(){
+    var T="https://ads-tracker-xi.vercel.app",K="trk_heuss_2026_secret";
+    function gf(){var p=new URLSearchParams(window.location.search);var f=p.get("fbclid")||sessionStorage.getItem("fbclid")||null;if(f)sessionStorage.setItem("fbclid",f);return f;}
+    gf();
+    window.adsLog=function(e,d){
+        try{
+            fetch(T+"/api/convert",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K},body:JSON.stringify({event_name:e,fbclid:gf(),user_agent:navigator.userAgent,source_url:window.location.href,value:(d&&d.value)||null,currency:(d&&d.currency)||"EUR",content_name:(d&&d.content_name)||null,content_ids:(d&&d.content_ids)||null,log_only:true}),keepalive:true,mode:"cors"}).catch(function(){});
+        }catch(e){}
+    };
+    window.adsLog("PageView");
+    })();
+    </script>
 </head>
 <body>
 
@@ -1877,6 +1892,7 @@ function openPDP(pid, from, fromRoute){
     window.scrollTo({top:0,behavior:"smooth"});
     if(!fromRoute) pushUrl("/produit/"+slugify(p.name), p.name+" - NOCTA France");
     if(typeof fbq==="function") fbq("track","ViewContent",{content_name:p.name,content_ids:[p.id],content_type:"product",value:p.price,currency:"EUR"});
+    if(window.adsLog) window.adsLog("ViewContent",{content_name:p.name,content_ids:[p.id],value:p.price});
 
     // Image + Gallery
     document.getElementById("pdpImg").innerHTML = '<img src="'+p.img+'" alt="'+p.name+'">';
@@ -2088,6 +2104,7 @@ function addToCart(pid,size,qty){
     animateBadge();
     openCart();
     if(typeof fbq==="function"){var pp=getProduct(pid);fbq("track","AddToCart",{content_name:pp.name,content_ids:[pid],content_type:"product",value:pp.price,currency:"EUR"});}
+    if(window.adsLog){var pl=getProduct(pid);window.adsLog("AddToCart",{content_name:pl.name,content_ids:[pid],value:pl.price});}
 }
 
 function removeFromCart(idx){
@@ -2475,7 +2492,10 @@ document.addEventListener("click",function(e){
 
     // Cart checkout
     if(t.closest("#cartCheckout")){
-        if(typeof fbq==="function"){var ctot=cart.reduce(function(s,c){var pr=getProduct(c.id);return s+(pr.price||0)*c.qty},0);var cids=cart.map(function(c){return c.id});fbq("track","InitiateCheckout",{value:ctot,currency:"EUR",content_ids:cids,num_items:cart.length});}
+        var ctot=cart.reduce(function(s,c){var pr=getProduct(c.id);return s+(pr.price||0)*c.qty},0);
+        var cids=cart.map(function(c){return c.id});
+        if(typeof fbq==="function") fbq("track","InitiateCheckout",{value:ctot,currency:"EUR",content_ids:cids,num_items:cart.length});
+        if(window.adsLog) window.adsLog("InitiateCheckout",{value:ctot,content_ids:cids});
         showToast("Redirection vers le paiement...");
         return;
     }
